@@ -1,12 +1,13 @@
+import pprint
 import requests
 
 
 class NotionClient:
-    def __init__(self):
-        self.aws_client = AwsAPIClient()
-        notion_secrets = self.aws_client.get_ssm_parameter_with_json('NOTION_SECRETS')
-        NOTION_API_TOKEN = notion_secrets['API_TOKEN']
-        self.integration_token = NOTION_API_TOKEN
+    """
+    参照: https://developers.notion.com/reference/intro
+    """
+    def __init__(self, api_token):
+        self.integration_token = api_token
         self.base_url = 'https://api.notion.com/v1'
 
     def _request(self, method, endpoint, data=None, params=None):
@@ -31,6 +32,9 @@ class NotionClient:
         except Exception as e:
             raise Exception(e)
 
+        if response.status_code != 200:
+            pprint.pprint(response.json())
+
         response.raise_for_status()
 
         return response.json()
@@ -40,6 +44,15 @@ class NotionClient:
         return self._request('GET', endpoint)
 
     def query_database(self, database_id, **kwargs):
+        """_summary_
+        Refs: https://developers.notion.com/reference/post-database-query
+
+        Args:
+            database_id (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         endpoint = f'databases/{database_id}/query'
         return self._request('POST', endpoint, data=kwargs)
 
@@ -67,7 +80,6 @@ class NotionClient:
         endpoint = f'users/{user_id}'
         return self._request('GET', endpoint)
 
-    # append block children
     def append_block_children(self, block_id, **kwargs):
         endpoint = f'blocks/{block_id}/children'
         return self._request('PATCH', endpoint, data=kwargs)
