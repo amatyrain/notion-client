@@ -32,12 +32,7 @@ class NotionClient:
         except Exception as e:
             raise Exception(e)
 
-        if response.status_code != 200:
-            pprint.pprint(response.json())
-
-        response.raise_for_status()
-
-        return response.json()
+        return response
 
     def retrieve_database(self, database_id):
         endpoint = f'databases/{database_id}'
