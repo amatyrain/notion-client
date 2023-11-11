@@ -19,6 +19,7 @@ class NotionClient:
 
         url = f'{self.base_url}/{endpoint}'
         print(f'url: {url}')
+        print(f'method: {method}')
         print(f'data: {data}')
 
         try:
@@ -31,6 +32,9 @@ class NotionClient:
             )
         except Exception as e:
             raise Exception(e)
+
+        if response.status_code >= 400:
+            raise Exception(response.text)
 
         return response
 
