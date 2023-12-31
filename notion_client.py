@@ -1,4 +1,3 @@
-import pprint
 import requests
 
 
@@ -78,6 +77,10 @@ class NotionClient:
     def retrieve_user(self, user_id):
         endpoint = f'users/{user_id}'
         return self._request('GET', endpoint)
+
+    def retrieve_block_children(self, block_id, **kwargs):
+        endpoint = f'blocks/{block_id}/children'
+        return self._request('GET', endpoint, params=kwargs)
 
     def append_block_children(self, block_id, **kwargs):
         endpoint = f'blocks/{block_id}/children'
