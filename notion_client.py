@@ -1,5 +1,8 @@
+import time
+import traceback
 import requests
 
+MAX_RETRY = 3
 
 class NotionClient:
     """
@@ -21,21 +24,30 @@ class NotionClient:
         print(f'method: {method}')
         print(f'data: {data}')
 
-        try:
-            response = requests.request(
-                method=method,
-                url=url,
-                headers=headers,
-                json=data,
-                params=params
-            )
-        except Exception as e:
-            raise Exception(e)
+        for i in range(MAX_RETRY):
+            try:
+                response = requests.request(
+                    method=method,
+                    url=url,
+                    headers=headers,
+                    json=data,
+                    params=params
+                )
 
-        if response.status_code >= 400:
-            raise Exception(response.text)
+                if response.status_code >= 400:
+                    raise Exception(response.text)
 
-        return response
+                return response
+            except Exception as e:
+                error = e
+                error_traceback = traceback.format_exc()
+                print(error)
+                print(error_traceback)
+                print(f"リトライします。{i+1}回目")
+                time.sleep(1)
+                continue
+
+        raise Exception(f"リトライ回数を超えました。\n{error}\n{error_traceback}")
 
     def retrieve_database(self, database_id):
         endpoint = f'databases/{database_id}'
@@ -85,3 +97,11 @@ class NotionClient:
     def append_block_children(self, block_id, **kwargs):
         endpoint = f'blocks/{block_id}/children'
         return self._request('PATCH', endpoint, data=kwargs)
+
+    def update_block(self, block_id, **kwargs):
+        endpoint = f'blocks/{block_id}'
+        return self._request('PATCH', endpoint, data=kwargs)
+
+    def delete_block(self, block_id):
+        endpoint = f'blocks/{block_id}'
+        return self._request('DELETE', endpoint)
