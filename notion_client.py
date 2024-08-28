@@ -80,7 +80,8 @@ class NotionClient:
 
     def delete_page(self, page_id):
         endpoint = f'pages/{page_id}'
-        return self._request('DELETE', endpoint)
+        data = {'archived': True}
+        return self._request('PATCH', endpoint, data=data)
 
     def list_users(self):
         endpoint = 'users'
