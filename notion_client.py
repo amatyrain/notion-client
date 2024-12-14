@@ -91,6 +91,10 @@ class NotionClient:
         endpoint = f'users/{user_id}'
         return self._request('GET', endpoint)
 
+    def retrieve_block(self, block_id):
+        endpoint = f'blocks/{block_id}'
+        return self._request('GET', endpoint)
+
     def retrieve_block_children(self, block_id, **kwargs):
         endpoint = f'blocks/{block_id}/children'
         return self._request('GET', endpoint, params=kwargs)
