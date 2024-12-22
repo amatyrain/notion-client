@@ -49,6 +49,23 @@ class NotionClient:
 
         raise Exception(f"リトライ回数を超えました。\n{error}\n{error_traceback}")
 
+    def request_recursively(self, method_name: str, **params) -> list:
+        finished = False
+        next_cursor = None
+        results = []
+        while not finished:
+            response = getattr(self, method_name)(**params)
+            response_json = response.json()
+            results.extend(response_json['results'])
+
+            if response_json['has_more']:
+                next_cursor = response_json['next_cursor']
+                params['start_cursor'] = next_cursor
+            else:
+                finished = True
+
+        return results
+
     def retrieve_database(self, database_id):
         endpoint = f'databases/{database_id}'
         return self._request('GET', endpoint)
